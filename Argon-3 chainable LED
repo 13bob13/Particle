@@ -1,0 +1,66 @@
+// include .h files if using visual studio workbench then import them before compiling the code
+
+#include <Grove_Temperature_And_Humidity_Sensor.h>
+
+// extra .h to manage chainable RGB LED 
+#include "Grove_ChainableLED.h"
+
+//LED extension plugged into A4 slot on expansion board - need to check on the structure here
+ChainableLED leds(A4, A5, 1);
+
+DHT dht(D2);
+
+float tempF, tempC, humidity;
+double tempF_dbl, tempC_dbl, humidity_dbl;
+
+// function to toggle led
+int toggleLed(String args){
+  leds.setColorHSB(0, 0.0, 1.0, 0.5);
+  delay(500);
+  leds.setColorHSB(0, 0.0, 0.0, 0.0);
+  delay(500);
+  return 1;
+}
+
+void setup() {
+
+Serial.begin(9600);
+
+//led info - initialise and set state to off
+leds.init();
+leds.setColorHSB(0, 0.0, 0.0, 0.0);
+
+//temp and humidity setup
+dht.begin();
+
+Particle.variable("Temp F", tempF_dbl);
+Particle.variable("Temp C", tempC_dbl);
+Particle.variable("Humidity", humidity_dbl);
+
+// add particle function to manage/call function "toggleLed" from cloud
+Particle.function("toggleLED", toggleLed);
+
+}
+
+void loop() {
+
+//temp and humidity stuff
+//float tempF, tempC, humidity;
+
+tempF = dht.getTempFarenheit();
+tempC = dht.getTempCelcius();
+humidity = dht.getHumidity();
+
+tempF_dbl = tempF;
+tempC_dbl = tempC;
+humidity_dbl = humidity;
+
+Serial.printlnf("Temp: %f", tempF);
+Serial.printlnf("Temp: %f", tempC);
+Serial.printlnf("Humidity: %f", humidity);
+
+// calling the function from your terminal - used for test purposes - redundant when using the Particle Function call
+//toggleLed(" ");
+delay (10000);
+
+}
