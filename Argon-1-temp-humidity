@@ -1,0 +1,49 @@
+// code off particle website - https://docs.particle.io/quickstart/isk-project/
+
+// setup particle.io on linux
+// add in crc tools if missing crc32 error - 	sudo apt-get install libarchive-zip-perl
+// serial monitor  - 	sudo chmod a+rw /dev/ttyACM0 
+
+//code added using Visual Studio - online code should work but had issues (can't remember what they were)
+
+//START CODE
+#include "Grove_Temperature_And_Humidity_Sensor.h"
+
+//initialise the sensor
+DHT dht(D2);
+
+float temp, humidity;
+double temp_dbl, humidity_dbl;
+
+//setup similar to arduino type devices
+void setup()
+{
+//init serial monitor 9600 aud
+Serial.begin(9600);
+// init sensor
+dht.begin();
+}
+
+void loop()
+{
+// note no calibration here - not sure where to do it
+// float variables
+float temp, humidity;
+
+//get temp in farenheit
+tempF = dht.getTempFarenheit();
+
+// get temp in celcius
+tempC = dht.getTempCelcius();
+
+//get humidity data
+humidity = dht.getHumidity();
+
+// print to serial port - if running usb check on the port - and if running linux chack your permissions - use sudo
+Serial.printlnf("Temp Far: %f", tempF);
+Serial.printlnf("Temp Celcius: %f", tempC);
+Serial.printlnf("Humidity: %f", humidity);
+
+// delay 10 secs
+delay(10000);
+}
