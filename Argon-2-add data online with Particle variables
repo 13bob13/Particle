@@ -1,0 +1,45 @@
+#include <Grove_Temperature_And_Humidity_Sensor.h>
+
+DHT dht(D2);
+
+// add in global variables - or move from within the function
+float tempF, tempC, humidity;
+double tempF_dbl, tempC_dbl, humidity_dbl;
+
+
+void setup() {
+
+Serial.begin(9600);
+
+//temp and humidity setup
+dht.begin();
+
+//interesting methods - they are used to submit data to the cloud - managing that data is another thing
+Particle.variable("Temp F", tempF_dbl);
+Particle.variable("Temp C", tempC_dbl);
+Particle.variable("Humidity", humidity_dbl);
+
+}
+
+void loop() {
+
+//temp and humidity stuff - not sure if they are required again - pretty sure not compiles without error both ways??
+float tempF, tempC, humidity;
+
+tempF = dht.getTempFarenheit();
+tempC = dht.getTempCelcius();
+humidity = dht.getHumidity();
+
+// these variables implicitly cast the raw float values into double for the Device Cloud (type conversion)
+tempF_dbl = tempF;
+tempC_dbl = tempC;
+humidity_dbl = humidity;
+
+// following is redundant unless testing
+Serial.printlnf("Temp: %f", tempF);
+Serial.printlnf("Temp: %f", tempC);
+Serial.printlnf("Humidity: %f", humidity);
+
+delay (10000);
+
+}
