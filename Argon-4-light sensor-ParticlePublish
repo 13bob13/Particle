@@ -1,0 +1,75 @@
+// light sensor connected to A0/A1 analog input
+
+#include <Grove_Temperature_And_Humidity_Sensor.h>
+#include "Grove_ChainableLED.h"
+//LED extension
+ChainableLED leds(A4, A5, 1);
+
+DHT dht(D2);
+
+float tempF, tempC, humidity;
+double tempF_dbl, tempC_dbl, humidity_dbl;
+
+double currentLightlevel;
+
+// function to toggle led
+int toggleLed(String args){
+  leds.setColorHSB(0, 0.0, 1.0, 0.5);
+  delay(500);
+  leds.setColorHSB(0, 0.0, 0.0, 0.0);
+  delay(500);
+  return 1;
+}
+
+void setup() {
+  //setup analog device - light sensor connected to A0
+  pinMode (A0, INPUT);
+
+Serial.begin(9600);
+//led info - initialise
+leds.init();
+leds.setColorHSB(0, 0.0, 0.0, 0.0);
+
+//temp and humidity setup
+dht.begin();
+
+Particle.variable("Temp F", tempF_dbl);
+Particle.variable("Temp C", tempC_dbl);
+Particle.variable("Humidity", humidity_dbl);
+
+Particle.function("toggleLED", toggleLed);
+
+}
+
+void loop() {
+// light sensor stuff
+  
+  double lightAnalogVal = analogRead(A0);
+  
+  // use map function to translate the analog reading to a value between 0 and 100 9I assume max from device is 4095 and so == 100
+  currentLightlevel = map(lightAnalogVal, 0.0, 4095.0, 0.0, 100.0);
+  
+  //set light level to publish to the cloud - threshold here is 60 - so send data when light > 60
+  if (currentLightlevel > 60) {
+    Particle.publish("Light Level", String(currentLightlevel), PRIVATE);
+  }
+
+//temp and humidity stuff
+//float tempF, tempC, humidity;
+
+tempF = dht.getTempFarenheit();
+tempC = dht.getTempCelcius();
+humidity = dht.getHumidity();
+
+tempF_dbl = tempF;
+tempC_dbl = tempC;
+humidity_dbl = humidity;
+
+Serial.printlnf("Temp: %f", tempF);
+Serial.printlnf("Temp: %f", tempC);
+Serial.printlnf("Humidity: %f", humidity);
+
+//toggleLed(" ");
+delay (10000);
+
+}
